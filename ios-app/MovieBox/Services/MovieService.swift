@@ -18,39 +18,63 @@ public class MovieService: ObservableObject {
     @Published public var selectedCategory: String = "Trending"
     @Published public var selectedDramaFilter: String = "All"
     
-    public let categories = ["Trending", "Film", "MangoTV", "TV", "Kriket", "Saluran TV"]
-    public let dramaFilters = ["All", "K-Drama", "Indo Drama", "C-Drama", "Anime"]
+    public let categories = ["Trending", "Film", "TV / Series", "ShortTV", "Anime", "Live", "Kids", "Musik"]
+    public let dramaFilters = ["All", "Indo Drama", "K-Drama", "C-Drama", "Anime"]
     
-    // Pool of verified working video streams from MovieBox CDN
-    private let streamPool = [
-        "https://macdn.aoneroom.com/media/vone/2026/09/07/08ccf73cb317ae27c8a1ef33fb5c3787-ld.mp4", // Indo drama (Terikat Janji, Tante Sonya)
-        "https://macdn.aoneroom.com/media/vone/2024/02/27/69055201aeb921d214209dc92bb7a14e-sd.mp4", // Action comedy (Flex x Cop)
-        "https://macdn.aoneroom.com/media/vone/2026/03/03/200bef0612c9fca6a2d43dd3d4831ffa-ld.mp4", // Horror thriller (Sengkolo)
-        "https://macdn.aoneroom.com/media/vone/2026/08/07/3a28bc81f68fb975118228b89484877a-ld.mp4", // Action thriller (Project Sacrifice)
-        "https://macdn.aoneroom.com/media/vone/2026/08/26/2fea3e3b1047228170dff052f4fcfa23-ld.mp4", // Romance drama (The Early Spring)
-        "https://macdn.aoneroom.com/media/vone/2025/01/22/ca6c42d9d955e850e9449fbbc694e250-sd.mp4", // Animation comedy (Win or Lose)
-        "https://macdn.aoneroom.com/media/vone/2025/05/29/def24984af12652ad9accb36b851b830-sd.mp4", // Adventure (The Lion King)
-        "https://macdn.aoneroom.com/media/vone/2025/10/21/c6e142b36eac69c7c37323158a53c0c4-ld.mp4", // Musical family (Encanto)
-        "https://macdn.aoneroom.com/media/vone/2023/10/13/0e545ebd9902492ce849c07572c05f48-sd.mp4", // Sports anime (Captain Tsubasa)
-        "https://macdn.aoneroom.com/media/vone/2025/01/10/9efae87a2f8984d2b341b3561bad3039-sd.mp4"  // Animation adventure (Moana)
-    ]
+    // Genre-accurate verified streaming sources from MovieBox CDN
+    private let dramaStream = "https://macdn.aoneroom.com/media/vone/2026/09/07/08ccf73cb317ae27c8a1ef33fb5c3787-ld.mp4"
+    private let romanceStream = "https://macdn.aoneroom.com/media/vone/2026/08/26/2fea3e3b1047228170dff052f4fcfa23-ld.mp4"
+    private let actionStream = "https://macdn.aoneroom.com/media/vone/2024/02/27/69055201aeb921d214209dc92bb7a14e-sd.mp4"
+    private let thrillerStream = "https://macdn.aoneroom.com/media/vone/2026/08/07/3a28bc81f68fb975118228b89484877a-ld.mp4"
+    private let horrorStream = "https://macdn.aoneroom.com/media/vone/2026/03/03/200bef0612c9fca6a2d43dd3d4831ffa-ld.mp4"
+    private let animationStream = "https://macdn.aoneroom.com/media/vone/2025/01/22/ca6c42d9d955e850e9449fbbc694e250-sd.mp4"
+    private let adventureStream = "https://macdn.aoneroom.com/media/vone/2025/05/29/def24984af12652ad9accb36b851b830-sd.mp4"
+    private let animeStream = "https://macdn.aoneroom.com/media/vone/2023/10/13/0e545ebd9902492ce849c07572c05f48-sd.mp4"
     
     public init() {
         loadCatalog()
     }
     
-    private func createEpisodes(baseIndex: Int, count: Int = 12) -> [Episode] {
+    private func primaryStream(for genre: String?, title: String) -> String {
+        let g = (genre ?? "").lowercased()
+        let t = title.lowercased()
+        
+        if g.contains("horror") || g.contains("horor") || t.contains("sengkolo") || t.contains("hantu") || t.contains("ghost") {
+            return horrorStream
+        } else if g.contains("thriller") || t.contains("sacrifice") || t.contains("misteri") {
+            return thrillerStream
+        } else if g.contains("action") || g.contains("tindakan") || t.contains("cop") || t.contains("killer") || t.contains("bima") {
+            return actionStream
+        } else if g.contains("animation") || g.contains("kartun") {
+            return animationStream
+        } else if g.contains("anime") || t.contains("tsubasa") || t.contains("piece") {
+            return animeStream
+        } else if g.contains("adventure") || g.contains("fantasy") || t.contains("klawih") {
+            return adventureStream
+        } else if g.contains("romance") || g.contains("romansa") || t.contains("spring") || t.contains("cinta") {
+            return romanceStream
+        } else {
+            return dramaStream
+        }
+    }
+    
+    private func createEpisodes(for genre: String?, title: String, count: Int = 12) -> [Episode] {
+        let baseStream = primaryStream(for: genre, title: title)
         var eps: [Episode] = []
         for i in 1...count {
-            let stream = streamPool[(baseIndex + i - 1) % streamPool.count]
             let hasBadge = (i == 3 || i == 4 || i == 5)
-            eps.append(Episode(number: i, streamUrl: stream, duration: "\(40 + (i * 3) % 15):\(10 + (i * 7) % 50)", hasDownloadBadge: hasBadge))
+            eps.append(Episode(
+                number: i,
+                streamUrl: baseStream,
+                duration: "\(42 + (i * 2) % 12):\(15 + (i * 5) % 40)",
+                hasDownloadBadge: hasBadge
+            ))
         }
         return eps
     }
     
     public func loadCatalog() {
-        // 1. Featured Drama: Terikat Janji (from exact screenshot)
+        // 1. Featured Primary Titles
         let terikatJanji = Movie(
             title: "Terikat Janji",
             cover: "https://pbcdnw.aoneroom.com/image/2026/09/17/aec7019b24d1e8faf17e7fd6e22a7658.jpg",
@@ -64,7 +88,7 @@ public class MovieService: ObservableObject {
             rank: 1,
             badge: "VIP",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 0, count: 16)
+            episodes: createEpisodes(for: "Drama", title: "Terikat Janji", count: 16)
         )
         
         let tanteSonya = Movie(
@@ -80,7 +104,7 @@ public class MovieService: ObservableObject {
             rank: 2,
             badge: "WeTV",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 4, count: 12)
+            episodes: createEpisodes(for: "Romance", title: "Tante Sonya", count: 12)
         )
         
         let flexCop = Movie(
@@ -96,7 +120,7 @@ public class MovieService: ObservableObject {
             rank: 3,
             badge: "HOT",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 1, count: 16)
+            episodes: createEpisodes(for: "Action", title: "Flex x Cop", count: 16)
         )
         
         let sengkolo = Movie(
@@ -112,7 +136,7 @@ public class MovieService: ObservableObject {
             rank: 2,
             badge: "HOT",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 2, count: 6)
+            episodes: createEpisodes(for: "Horror", title: "Sengkolo", count: 6)
         )
         
         let projectSacrifice = Movie(
@@ -127,7 +151,7 @@ public class MovieService: ObservableObject {
             seasonInfo: "Lengkap",
             rank: 3,
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 3, count: 6)
+            episodes: createEpisodes(for: "Thriller", title: "Project Sacrifice", count: 6)
         )
         
         let theEarlySpring = Movie(
@@ -142,7 +166,7 @@ public class MovieService: ObservableObject {
             seasonInfo: "1 musim",
             rank: 5,
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 4, count: 14)
+            episodes: createEpisodes(for: "Romance", title: "The Early Spring", count: 14)
         )
         
         let winOrLose = Movie(
@@ -156,7 +180,7 @@ public class MovieService: ObservableObject {
             typeTag: "tv",
             seasonInfo: "1 musim",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 5, count: 8)
+            episodes: createEpisodes(for: "Animation", title: "Win or Lose", count: 8)
         )
         
         let bimaSatria = Movie(
@@ -170,7 +194,7 @@ public class MovieService: ObservableObject {
             typeTag: "tv",
             seasonInfo: "1 musim",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 1, count: 24)
+            episodes: createEpisodes(for: "Action", title: "Bima", count: 24)
         )
         
         let mahligaiCinta = Movie(
@@ -184,7 +208,7 @@ public class MovieService: ObservableObject {
             typeTag: "tv",
             seasonInfo: "1 musim",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 0, count: 20)
+            episodes: createEpisodes(for: "Drama", title: "Mahligai", count: 20)
         )
         
         let sekawanLimo = Movie(
@@ -200,10 +224,10 @@ public class MovieService: ObservableObject {
             rank: 1,
             badge: "HOT",
             uploader: "Diunggah oleh Fatherdmw55 etc.",
-            episodes: createEpisodes(baseIndex: 6, count: 6)
+            episodes: createEpisodes(for: "Horror", title: "Sekawan Limo", count: 6)
         )
 
-        // Load bundled catalog.json for all 750+ movies
+        // Load bundled catalog.json for all 750+ movies with genre-accurate streams
         var fullCatalogList: [Movie] = [
             terikatJanji,
             tanteSonya,
@@ -222,14 +246,11 @@ public class MovieService: ObservableObject {
            let list = try? JSONDecoder().decode([CatalogItem].self, from: data) {
             
             var existingTitles = Set(fullCatalogList.map { $0.title.lowercased() })
-            var index = 5
             for item in list {
                 let trimmed = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !existingTitles.contains(trimmed.lowercased()) {
                     existingTitles.insert(trimmed.lowercased())
-                    let eps = createEpisodes(baseIndex: index, count: 10)
-                    index += 1
-                    
+                    let eps = createEpisodes(for: item.genre, title: trimmed, count: 8)
                     let isTv = (item.genre?.contains("Drama") ?? false) || (item.genre?.contains("TV") ?? false)
                     
                     let movie = Movie(
@@ -255,8 +276,8 @@ public class MovieService: ObservableObject {
         // Hero Banners
         self.heroBanners = [
             terikatJanji,
-            Movie(title: "Kupeluk Kamu Selamanya", cover: "https://pbcdnw.aoneroom.com/image/2026/09/21/3dd267f00b7727f38753c79e00054075.jpg", description: "Serial romansa hangat yang menyentuh hati jutaan penonton.", genre: "2026 | Drama", rate: "8.8", year: "2026", episodes: createEpisodes(baseIndex: 4, count: 12)),
-            Movie(title: "The Scandal", cover: "https://pbcdnw.aoneroom.com/image/2026/09/14/876fa95f0f03ebdfde01df32676be1fd.jpg", description: "Skandal elit istana yang mengguncang takhta dan kekuasaan.", genre: "2026 | Drama, Romance", rate: "8.5", year: "2026", episodes: createEpisodes(baseIndex: 3, count: 14)),
+            Movie(title: "Kupeluk Kamu Selamanya", cover: "https://pbcdnw.aoneroom.com/image/2026/09/21/3dd267f00b7727f38753c79e00054075.jpg", description: "Serial romansa hangat yang menyentuh hati jutaan penonton.", genre: "2026 | Drama", rate: "8.8", year: "2026", episodes: createEpisodes(for: "Drama", title: "Kupeluk Kamu", count: 12)),
+            Movie(title: "The Scandal", cover: "https://pbcdnw.aoneroom.com/image/2026/09/14/876fa95f0f03ebdfde01df32676be1fd.jpg", description: "Skandal elit istana yang mengguncang takhta dan kekuasaan.", genre: "2026 | Drama, Romance", rate: "8.5", year: "2026", episodes: createEpisodes(for: "Drama", title: "The Scandal", count: 14)),
             sekawanLimo
         ]
         
@@ -274,7 +295,7 @@ public class MovieService: ObservableObject {
             sekawanLimo,
             sengkolo,
             projectSacrifice,
-            Movie(title: "Ayah, Ini Arahnya ke Mana?", cover: "https://pbcdnw.aoneroom.com/image/2026/09/09/518028e23d233f569df8b37e2ab7c6d1.jpg", description: "Perjalanan emosional seorang ayah dan anak mencari makna pulang.", genre: "Family, Drama", rate: "8.8", year: "2026", rank: 4, episodes: createEpisodes(baseIndex: 0, count: 6)),
+            Movie(title: "Ayah, Ini Arahnya ke Mana?", cover: "https://pbcdnw.aoneroom.com/image/2026/09/09/518028e23d233f569df8b37e2ab7c6d1.jpg", description: "Perjalanan emosional seorang ayah dan anak mencari makna pulang.", genre: "Family, Drama", rate: "8.8", year: "2026", rank: 4, episodes: createEpisodes(for: "Drama", title: "Ayah", count: 6)),
             winOrLose
         ]
         

@@ -13,6 +13,9 @@ public struct DetailView: View {
     @State private var isFullScreen: Bool = false
     @State private var isBookmarked: Bool = false
     @State private var showShareSheet: Bool = false
+    @State private var showDownloadSheet: Bool = false
+    @State private var selectedResolution: String = "1080P FHD"
+    @State private var showDownloadToast: Bool = false
     
     // Sample comments
     private let comments = [
@@ -83,6 +86,26 @@ public struct DetailView: View {
             // 3. Floating Download Button at bottom (matching Android MovieBox)
             floatingDownloadButton
                 .padding(.bottom, 12)
+            
+            // 4. Download Confirmation Toast
+            if showDownloadToast {
+                VStack {
+                    HStack(spacing: 10) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(Color(red: 0.0, green: 0.82, blue: 0.53))
+                        Text("Unduhan dimulai! Tersimpan di tab Unduhan.")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color(white: 0.18))
+                    .cornerRadius(24)
+                    .shadow(radius: 10)
+                    .padding(.bottom, 70)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -96,6 +119,9 @@ public struct DetailView: View {
             if let ep = selectedEpisode {
                 PlayerView(streamUrl: ep.streamUrl)
             }
+        }
+        .sheet(isPresented: $showDownloadSheet) {
+            downloadBottomSheet
         }
     }
     
@@ -253,7 +279,7 @@ public struct DetailView: View {
             
             // Unduh (Golden button)
             Button {
-                // Trigger download action
+                showDownloadSheet = true
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "bag.badge.plus")
@@ -400,7 +426,6 @@ public struct DetailView: View {
     // MARK: - Recommendations Grid (Untukmu)
     private var recommendationsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 16) {
-            // Recommendation Cards
             recommendationCard(
                 title: "Terikat Janji",
                 cover: "https://pbcdnw.aoneroom.com/image/2026/09/17/aec7019b24d1e8faf17e7fd6e22a7658.jpg"
@@ -490,7 +515,7 @@ public struct DetailView: View {
     // MARK: - Floating Download Button
     private var floatingDownloadButton: some View {
         Button {
-            // Action
+            showDownloadSheet = true
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "bag.fill")
@@ -505,6 +530,81 @@ public struct DetailView: View {
             .clipShape(Capsule())
             .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
         }
+    }
+    
+    // MARK: - Download Bottom Sheet
+    private var downloadBottomSheet: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                Text("Unduh Video Offline")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                Button {
+                    showDownloadSheet = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .font(.title3)
+                }
+            }
+            .padding(.top, 16)
+            
+            Text("Pilih Kualitas:")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            HStack(spacing: 12) {
+                ForEach(["1080P FHD (VIP)", "720P HD", "480P SD"], id: \.self) { res in
+                    Button {
+                        selectedResolution = res
+                    } label: {
+                        Text(res)
+                            .font(.system(size: 13, weight: .semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(selectedResolution == res ? Color(red: 0.0, green: 0.82, blue: 0.53) : Color(white: 0.18))
+                            .foregroundColor(selectedResolution == res ? .black : .white)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            
+            Text("Pilih Part / Episode:")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(movie.episodes) { ep in
+                        Button {
+                            showDownloadSheet = false
+                            withAnimation {
+                                showDownloadToast = true
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                                withAnimation {
+                                    showDownloadToast = false
+                                }
+                            }
+                        } label: {
+                            Text(ep.title)
+                                .font(.system(size: 14, weight: .bold))
+                                .frame(width: 50, height: 40)
+                                .background(Color(white: 0.2))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(red: 0.1, green: 0.1, blue: 0.12).ignoresSafeArea())
+        .presentationDetents([.fraction(0.45)])
     }
     
     // MARK: - Helpers

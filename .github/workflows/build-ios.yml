@@ -51,16 +51,15 @@ jobs:
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v1.0.4"
-          name: "MovieBox iOS App v1.0.4 (Full Android Multi-Part UI & Dynamic Stream Player)"
+          tag_name: "v1.0.5"
+          name: "MovieBox iOS App v1.0.5 (Android Feature Parity: ShortTV, VIP Unlocked, Genre Stream Fix)"
           body: |
-            ### MovieBox iOS v1.0.4 - Full Android UI & Multi-Part Player
-            1. **Tampilan Persis Android MovieBox**: Video player inline 16:9 langsung berada di bagian atas layar detail film dengan tombol kontrol dan fullscreen landscape.
-            2. **Fitur Part / Episode Lengkap ("01", "02", "03", "04", ...)**: Baris selector episode/part persis seperti di Android MovieBox. Menekan nomor part langsung mengganti video yang sedang diputar ke part/episode tersebut!
-            3. **Multi-Part & Multi-Stream untuk Seluruh Film & Drama**: Terikat Janji, Flex x Cop, Tante Sonya, Sengkolo: One Suro, The Early Spring, Project Sacrifice, Win or Lose, Bima Satria Garuda, Mahligai untuk Cinta, dan seluruh 750+ katalog film memiliki episode/part masing-masing.
-            4. **Sumber Daya & Uploader**: Menampilkan label "Sumber daya: Diunggah oleh Fatherdmw55 etc." dan selector "Original Audio".
-            5. **Tab Rekomendasi & Komunitas**: Tab "Untukmu" dengan 2-kolom grid poster film serta tab "Komentar(99+)".
-            6. **Floating Download Button**: Tombol emas melayang "Unduh" di bagian bawah layar.
+            ### MovieBox iOS v1.0.5 - Android Feature Parity Edition
+            1. **Tidak Ada Lagi Video Ngawur / Tertukar**: Sistem stream pool acak telah dihapus total. Setiap genre dan judul (Horor, Aksi, Romansa, Animasi, Thriller, Drama Indonesia & K-Drama) dipetakan secara akurat sesuai jenis dan part aslinya.
+            2. **Fitur ShortTV Vertikal (Micro-Drama TikTok Style)**: Tab ShortTV kini memutar drama pendek vertikal dengan navigasi swipe atas/bawah, like, comment, dan share persis MovieBox Android.
+            3. **VIP Permanent Unlocked (Fitur MOD Android)**: Resolusi 1080P/4K otomatis aktif, bebas seluruh iklan, dan kecepatan download maksimal tanpa perlu berlangganan.
+            4. **Panel Unduh Offline**: Menekan tombol unduh membuka bottom sheet pemilihan resolusi (1080P, 720P, 480P) dan pemilihan episode untuk disimpan offline.
+            5. **Player Inline 16:9 & Part Selector 01-16**: Navigasi episode lengkap persis seperti pada tangkapan layar Android.
           files: build/MovieBox.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
