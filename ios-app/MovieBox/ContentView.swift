@@ -72,7 +72,7 @@ public struct ContentView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                Text("MovieBox v1.0.2 for iOS")
+                Text("MovieBox v1.0.4 for iOS")
                     .font(.caption)
                     .foregroundColor(.gray)
             }
