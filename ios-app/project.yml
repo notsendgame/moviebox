@@ -1,0 +1,20 @@
+name: MovieBox
+options:
+  bundleIdPrefix: com.moviebox
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  MovieBox:
+    type: application
+    platform: iOS
+    sources:
+      - path: MovieBox
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.moviebox.iosapp
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        SWIFT_VERSION: "5.0"
+        INFOPLIST_FILE: MovieBox/Info.plist
+        GENERATE_INFOPLIST_FILE: NO

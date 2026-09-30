@@ -14,6 +14,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: |
+          cd ios-app
+          xcodegen generate
+
       - name: Build App with Xcodebuild
         run: |
           cd ios-app
@@ -25,22 +33,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            clean build 2>&1 | tee xcodebuild.log
-
-      - name: Dump Log to Summary
-        if: always()
-        run: |
-          echo "### Xcodebuild Log" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat ios-app/xcodebuild.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Xcodebuild-Log
-          path: ios-app/xcodebuild.log
+            clean build
 
       - name: Package into IPA
         run: |
