@@ -63,7 +63,7 @@ public struct DetailView: View {
                 }
                 .padding(.horizontal)
                 .fullScreenCover(isPresented: $showingPlayer) {
-                    PlayerView(streamUrl: movie.streamUrl ?? "https://macdn.aoneroom.com/media/vone/2025/01/10/9efae87a2f8984d2b341b3561bad3039-sd.mp4")
+                    PlayerView(streamUrl: movie.streamUrl ?? "https://macdn.aoneroom.com/media/vone/2026/09/07/08ccf73cb317ae27c8a1ef33fb5c3787-ld.mp4")
                 }
                 
                 // Description

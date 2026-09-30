@@ -51,9 +51,9 @@ jobs:
       - name: Create Public GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v1.0.2"
-          name: "MovieBox iOS App v1.0.2 (Full Android 1:1 UI & Catalog)"
-          body: "Complete 1:1 Android UI replica for iPhone: Full catalog with 750+ movies, Drama & Film rankings, categories, search, and official app icon."
+          tag_name: "v1.0.3"
+          name: "MovieBox iOS App v1.0.3 (Fixed Unique Video Streams)"
+          body: "Fixed video playback so every movie and drama plays its own real streaming video (no more Moana loop)."
           files: build/MovieBox.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
