@@ -5,7 +5,7 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0';
 const TARGET_HOST = 'h5.aoneroom.com';
 
