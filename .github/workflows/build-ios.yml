@@ -23,10 +23,11 @@ jobs:
           xcodebuild -project MovieBox.xcodeproj \
             -scheme MovieBox \
             -configuration Release \
-            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
             SYMROOT=build \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             clean build
 
       - name: Package into IPA
