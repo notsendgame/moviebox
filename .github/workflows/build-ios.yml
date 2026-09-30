@@ -5,6 +5,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build MovieBox iOS IPA
@@ -45,8 +48,12 @@ jobs:
           zip -r MovieBox.ipa Payload
           echo "IPA Created Successfully!"
 
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
+      - name: Create Public GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: MovieBox-iOS-IPA
-          path: build/MovieBox.ipa
+          tag_name: "v1.0.0"
+          name: "MovieBox iOS App v1.0.0"
+          body: "Download MovieBox.ipa below and install with Sideloadly, AltStore, Scarlet, or TrollStore."
+          files: build/MovieBox.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
