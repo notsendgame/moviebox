@@ -24,6 +24,7 @@ jobs:
             -scheme MovieBox \
             -configuration Release \
             -sdk iphoneos \
+            SYMROOT=build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             clean build
